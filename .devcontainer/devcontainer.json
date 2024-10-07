@@ -1,0 +1,14 @@
+{
+	"name": "codebuild-notification-webhook",
+	"dockerComposeFile": "../compose.yaml",
+	"service": "codebuild-notification-webhook",
+	"workspaceFolder": "/workspace",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"wallabyjs.quokka-vscode",
+				"formulahendry.code-runner"
+			]
+		}
+	}
+}

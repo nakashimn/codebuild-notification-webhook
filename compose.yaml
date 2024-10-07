@@ -1,0 +1,21 @@
+services:
+  codebuild-notification-webhook:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: codebuild-notification-webhook
+    hostname: codebuild-notification-webhook
+    shm_size: '1gb'
+    volumes:
+      - ./:/workspace:cached
+      - node_modules:/workspace/node_modules
+    environment:
+      GIT_AUTHOR_NAME: ${GIT_USERNAME}
+      GIT_COMMITTER_NAME: ${GIT_USERNAME}
+      GIT_AUTHOR_EMAIL: ${GIT_EMAIL_ADDRESS}
+      GIT_COMMITTER_EMAIL: ${GIT_EMAIL_ADDRESS}
+      TZ: Asia/Tokyo
+    tty: true
+
+volumes:
+  node_modules:
