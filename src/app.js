@@ -1,4 +1,6 @@
 const axios = require('axios');
+const Logger = require('node-json-logger');
+const logger = new Logger();
 
 exports.handler = async (event) => {
     // const
@@ -9,14 +11,13 @@ exports.handler = async (event) => {
     const projectName = buildDetails['project-name'];
     const buildStatus = buildDetails['build-status'];
     const buildId = buildDetails['build-id'];
-    const streamName = buildDetails['additional-information']['logs']['stream-name'];
     const buildNumber = buildDetails['additional-information']['build-number'];
     const currentPhaseContext = buildDetails['current-phase-context'];
     const webhookUrl = process.env.WEBHOOK_URL;
     const messages = {
         'IN_PROGRESS': process.env.IN_PROGRESS_MESSAGE ?? 'The build has started.',
         'SUCCEEDED': process.env.SUCCEEDED_MESSAGE ?? 'The build completed successfully.',
-        'FAILED': process.env.FALIED_MESSAGE ?? 'The build failed.'
+        'FAILED': process.env.FAILED_MESSAGE ?? 'The build failed.'
     };
 
     // construct project title
@@ -26,18 +27,15 @@ exports.handler = async (event) => {
     }
 
     // construct Codebuild URL
-    var codebuildPageUrl = `https://${region}.console.aws.amazon.com/codesuite/codebuild/${account}/projects/${projectName}`;
-    if (streamName != null) {
-        codebuildPageUrl += `/build/${projectName}%3A${streamName}/log`;
-    }
+    const codebuildPageUrl = `https://${region}.console.aws.amazon.com/codesuite/codebuild/${account}/projects/${projectName}`;
 
     // logging
-    console.log(`[${appName}] DEBUG | project-name: ${projectTitle}`);
-    console.log(`[${appName}] DEBUG | build-id: ${buildId}}`);
-    console.log(`[${appName}] DEBUG | build-status: ${buildStatus}`);
-    console.log(`[${appName}] DEBUG | codebuild-url: ${codebuildPageUrl}`);
-    console.log(`[${appName}] DEBUG | current-phase-context: ${currentPhaseContext}`);
-    console.log(`[${appName}] DEBUG | webhook-url: ${webhookUrl}`);
+    logger.debug({"project-name": projectTitle});
+    logger.debug({"build-id": buildId});
+    logger.debug({"build-status": buildStatus});
+    logger.debug({"codebuild-url": codebuildPageUrl});
+    logger.debug({"current-phase-context": currentPhaseContext});
+    logger.debug({"webhook-url": webhookUrl});
 
     // notification
     const message = {
@@ -46,10 +44,10 @@ exports.handler = async (event) => {
     const headers = {'Content-Type': 'application/json'};
     await axios.post(webhookUrl, message, headers)
     .then(response => {
-        console.log(`[${appName}] DEBUG | Message sent successfully:`, response.data);
+        logger.debug('Succeed to send message.', {data: response.data});
     })
     .catch(error => {
-        console.error(`[${appName}] DEBUG | Error sending message:`, error);
+        logger.error('Failed to send message.', {error: error});
     });
 
     // response

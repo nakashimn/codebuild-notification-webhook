@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
+      target: dev
     container_name: codebuild-notification-webhook
     hostname: codebuild-notification-webhook
     shm_size: '1gb'
